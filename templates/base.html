@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Infracciones Rápidas{% endblock %}</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8fdf9; /* Fondo verde muy claro */
+    }
+    .navbar-custom {
+      background-color: #1b5e20; /* Verde oscuro */
+    }
+    .card-custom {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .card-header {
+      background-color: #2e7d32; 
+      color: white;
+      border-radius: 15px 15px 0 0;
+    }
+    .timeline {
+      list-style: none;
+      padding: 0;
+      position: relative;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #81c784;
+      left: 20px;
+      margin: 0;
+    }
+    .timeline-item {
+      position: relative;
+      margin: 20px 0 20px 60px;
+    }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -40px;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      background: #388e3c;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/">Infracciones Rápidas</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#navbarNav" aria-controls="navbarNav" 
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/dashboard/">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/camaras/">Cámaras</a></li>
+          <li class="nav-item"><a class="nav-link" href="/admin/">Admin</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido dinámico -->
+  <div class="container-fluid py-4">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

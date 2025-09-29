@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Cámaras - Infracciones Rápidas{% endblock %}
+
+{% block content %}
+<div class="card card-custom">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Listado de Cámaras</span>
+    <a href="{% url 'camaras_crear' %}" class="btn btn-success btn-sm">+ Nueva Cámara</a>
+  </div>
+  <div class="card-body">
+    <table class="table table-hover align-middle">
+      <thead class="table-success">
+        <tr>
+          <th>ID</th>
+          <th>Ubicación</th>
+          <th>IP</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for camara in camaras %}
+        <tr>
+          <td>{{ camara.id }}</td>
+          <td>{{ camara.ubicacion }}</td>
+          <td>{{ camara.ip }}</td>
+          <td>
+            <a href="{% url 'camaras_editar' camara.id %}" class="btn btn-outline-success btn-sm">Editar</a>
+            <a href="{% url 'camaras_eliminar' camara.id %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted">No hay cámaras registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Infracciones Rápidas{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Columna izquierda -->
+  <div class="col-lg-8">
+    <!-- Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card card-custom">
+          <div class="card-body text-center">
+            <h5 class="card-title text-success">Cámaras Activas</h5>
+            <h2 class="fw-bold">12</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-custom">
+          <div class="card-body text-center">
+            <h5 class="card-title text-success">Infracciones Hoy</h5>
+            <h2 class="fw-bold">8</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-custom">
+          <div class="card-body text-center">
+            <h5 class="card-title text-success">Alertas</h5>
+            <h2 class="fw-bold">3</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico / Video -->
+    <div class="card card-custom mb-4">
+      <div class="card-header">Actividad Reciente</div>
+      <div class="card-body">
+        <p>Aquí puedes insertar un gráfico (ej. Chart.js) o un video de cámara en vivo.</p>
+        <div class="ratio ratio-16x9">
+          <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" title="Camara en vivo"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Columna derecha -->
+  <div class="col-lg-4">
+    <div class="card card-custom">
+      <div class="card-header">Infracciones Recientes</div>
+      <div class="card-body">
+        <ul class="timeline">
+          <li class="timeline-item">
+            <h6>Exceso de velocidad</h6>
+            <small class="text-muted">Hace 2 min</small>
+          </li>
+          <li class="timeline-item">
+            <h6>Semáforo en rojo</h6>
+            <small class="text-muted">Hace 15 min</small>
+          </li>
+          <li class="timeline-item">
+            <h6>Invasión de carril</h6>
+            <small class="text-muted">Hace 1 hora</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
