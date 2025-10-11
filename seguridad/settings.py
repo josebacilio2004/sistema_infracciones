@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "dashboard",
     "camaras",
+    "infracciones",
+    "ml_predicciones",
 ]
 
 MIDDLEWARE = [
@@ -105,9 +107,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
 
@@ -119,8 +121,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [BASE_DIR / "static"]  # donde guardas tus archivos estáticos propios
-STATIC_ROOT = BASE_DIR / "staticfiles"    # donde collectstatic los juntará
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
@@ -129,30 +134,47 @@ STATIC_ROOT = BASE_DIR / "staticfiles"    # donde collectstatic los juntará
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Infracciones Rápidas",
-    "site_header": "Infracciones Rápidas",
-    "site_brand": "Infracciones Rápidas",
-    "welcome_sign": "Bienvenido al panel de Infracciones Rápidas",
-    "copyright": "Infracciones Rápidas © 2025",
+    "site_title": "Sistema de Infracciones IA",
+    "site_header": "Sistema de Infracciones con IA",
+    "site_brand": "Infracciones IA",
+    "welcome_sign": "Bienvenido al Sistema de Detección de Infracciones con Inteligencia Artificial",
+    "copyright": "Sistema de Infracciones IA © 2025",
 
     # Logo opcional
     "site_logo": None,
 
     # 🎨 Temas Bootswatch
-    "theme": "minty",          # Verde elegante
-    "dark_mode_theme": "darkly",   # Tema oscuro alternativo
+    "theme": "minty",
+    "dark_mode_theme": "darkly",
 
-    # Iconos
     "icons": {
         "auth": "fas fa-users",
+        "auth.User": "fas fa-user",
+        "auth.Group": "fas fa-users-cog",
         "camaras.Camara": "fas fa-video",
+        "infracciones.TipoInfraccion": "fas fa-exclamation-triangle",
+        "infracciones.Vehiculo": "fas fa-car",
+        "infracciones.Infraccion": "fas fa-file-invoice",
+        "infracciones.PerfilConductor": "fas fa-user-shield",
+        "infracciones.PrediccionAccidente": "fas fa-chart-line",
+        "infracciones.EventoDeteccion": "fas fa-bell",
+        "ml_predicciones.ModeloEntrenamiento": "fas fa-brain",
+        "ml_predicciones.DatasetEntrenamiento": "fas fa-database",
     },
 
-    "order_with_respect_to": ["camaras", "auth"],
+    "order_with_respect_to": ["camaras", "infracciones", "ml_predicciones", "auth"],
+    
+    "custom_links": {
+        "infracciones": [{
+            "name": "Dashboard de Infracciones", 
+            "url": "admin:index",
+            "icon": "fas fa-chart-pie",
+        }]
+    },
 }
 
 
 JAZZMIN_UI_TWEAKS = {
-    "theme": "minty",   # Paleta verde
-    "dark_mode_theme": "darkly",  # Tema oscuro opcional
+    "theme": "minty",
+    "dark_mode_theme": "darkly",
 }

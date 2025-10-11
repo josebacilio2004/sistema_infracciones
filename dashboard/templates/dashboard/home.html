@@ -1,72 +1,1187 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Infracciones Rápidas{% endblock %}
+{% block title %}Dashboard - Sistema de Monitoreo IA{% endblock %}
 
 {% block content %}
-<div class="row">
-  <!-- Columna izquierda -->
-  <div class="col-lg-8">
-    <!-- Cards -->
-    <div class="row g-3 mb-4">
-      <div class="col-md-4">
-        <div class="card card-custom">
-          <div class="card-body text-center">
-            <h5 class="card-title text-success">Cámaras Activas</h5>
-            <h2 class="fw-bold">12</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card card-custom">
-          <div class="card-body text-center">
-            <h5 class="card-title text-success">Infracciones Hoy</h5>
-            <h2 class="fw-bold">8</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card card-custom">
-          <div class="card-body text-center">
-            <h5 class="card-title text-success">Alertas</h5>
-            <h2 class="fw-bold">3</h2>
-          </div>
-        </div>
-      </div>
+<div class="dashboard-header">
+  <div class="header-content">
+    <div>
+      <h1 class="dashboard-title">Centro de Control IA</h1>
+      <p class="dashboard-subtitle">Sistema Integrado de Detección de Infracciones - IoT + Visión Artificial + Machine Learning</p>
     </div>
+    <div class="header-actions">
+      <button class="btn-icon" title="Notificaciones">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge">3</span>
+      </button>
+      <select class="time-selector">
+        <option>Últimas 12 horas</option>
+        <option>Últimas 24 horas</option>
+        <option>Última semana</option>
+        <option>Último mes</option>
+      </select>
+    </div>
+  </div>
+</div>
 
-    <!-- Gráfico / Video -->
-    <div class="card card-custom mb-4">
-      <div class="card-header">Actividad Reciente</div>
-      <div class="card-body">
-        <p>Aquí puedes insertar un gráfico (ej. Chart.js) o un video de cámara en vivo.</p>
-        <div class="ratio ratio-16x9">
-          <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" title="Camara en vivo"></iframe>
-        </div>
+<div class="metrics-grid">
+  <div class="metric-card metric-primary">
+    <div class="metric-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+        <circle cx="12" cy="13" r="4"></circle>
+      </svg>
+    </div>
+    <div class="metric-content">
+      <div class="metric-label">Cámaras Activas</div>
+      <div class="metric-value">{{ total_camaras|default:12 }}</div>
+      <div class="metric-change positive">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        <span>+2 desde ayer</span>
       </div>
     </div>
   </div>
 
-  <!-- Columna derecha -->
-  <div class="col-lg-4">
-    <div class="card card-custom">
-      <div class="card-header">Infracciones Recientes</div>
-      <div class="card-body">
-        <ul class="timeline">
-          <li class="timeline-item">
-            <h6>Exceso de velocidad</h6>
-            <small class="text-muted">Hace 2 min</small>
-          </li>
-          <li class="timeline-item">
-            <h6>Semáforo en rojo</h6>
-            <small class="text-muted">Hace 15 min</small>
-          </li>
-          <li class="timeline-item">
-            <h6>Invasión de carril</h6>
-            <small class="text-muted">Hace 1 hora</small>
-          </li>
-        </ul>
+  <div class="metric-card metric-warning">
+    <div class="metric-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <div class="metric-content">
+      <div class="metric-label">Infracciones Hoy</div>
+      <div class="metric-value">{{ infracciones_hoy|default:47 }}</div>
+      <div class="metric-change negative">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        <span>-12% vs ayer</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-card metric-danger">
+    <div class="metric-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="metric-content">
+      <div class="metric-label">Alertas Críticas</div>
+      <div class="metric-value">{{ alertas_activas|default:3 }}</div>
+      <div class="metric-change positive">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        <span>-5 resueltas</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-card metric-success">
+    <div class="metric-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+      </svg>
+    </div>
+    <div class="metric-content">
+      <div class="metric-label">Precisión ML</div>
+      <div class="metric-value">94.2%</div>
+      <div class="metric-change positive">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+        <span>+1.3% esta semana</span>
       </div>
     </div>
   </div>
 </div>
+
+<div class="content-grid">
+   Video Detection Panel 
+  <div class="video-panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="23 7 16 12 23 17 23 7"></polygon>
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+        </svg>
+        <span>Detección en Tiempo Real</span>
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Inactivo</span>
+      </div>
+    </div>
+
+    <div class="video-container-wrapper">
+      <div class="video-container" id="videoContainer">
+        <video id="videoElement" autoplay playsinline muted></video>
+        <canvas id="detectionCanvas"></canvas>
+        
+         Video Overlay Info 
+        <div class="video-overlay" id="videoOverlay">
+          <div class="overlay-stats">
+            <div class="stat-item">
+              <span class="stat-label">FPS:</span>
+              <span class="stat-value" id="fpsCounter">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Detecciones:</span>
+              <span class="stat-value" id="detectionCounter">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Infracciones:</span>
+              <span class="stat-value" id="infractionCounter">0</span>
+            </div>
+          </div>
+        </div>
+
+         Placeholder when inactive 
+        <div class="video-placeholder" id="videoPlaceholder">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <p>Selecciona una fuente de video para comenzar</p>
+        </div>
+      </div>
+
+       Video Controls 
+      <div class="video-controls">
+        <div class="control-group">
+          <label class="control-label">Fuente de Video:</label>
+          <div class="btn-group">
+            <button class="btn-control" id="btnWebcam" onclick="activarWebcam()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              Webcam
+            </button>
+            <button class="btn-control" id="btnVideo" onclick="activarVideoPrueba()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Video de Prueba
+            </button>
+            <button class="btn-control btn-danger" id="btnDetener" onclick="detenerDeteccion()" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="6" width="12" height="12"></rect>
+              </svg>
+              Detener
+            </button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Configuración:</label>
+          <div class="settings-controls">
+            <div class="setting-item">
+              <label>
+                <input type="checkbox" id="chkDeteccion" checked>
+                <span>Detección IA</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label>
+                <input type="checkbox" id="chkVelocidad" checked>
+                <span>Exceso Velocidad</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label>
+                <input type="checkbox" id="chkSemaforo" checked>
+                <span>Luz Roja</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label>
+                <input type="checkbox" id="chkGuardar">
+                <span>Guardar Evidencias</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   Charts Panel 
+  <div class="charts-panel">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Infracciones por Hora</div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #3b82f6;"></span>
+            <span>Velocidad</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #f97316;"></span>
+            <span>Semáforo</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #06b6d4;"></span>
+            <span>Carril</span>
+          </div>
+        </div>
+      </div>
+      <canvas id="infraccionesChart"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Estado del Sistema</div>
+      </div>
+      <canvas id="sistemaChart"></canvas>
+    </div>
+  </div>
+
+   Activity Feed 
+  <div class="activity-panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Actividad Reciente</span>
+      </div>
+      <button class="btn-text">Ver todo</button>
+    </div>
+
+    <div class="activity-feed" id="activityFeed">
+      <div class="activity-item">
+        <div class="activity-icon activity-danger">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Exceso de velocidad detectado</div>
+          <div class="activity-description">Cámara #3 - Av. Principal - 85 km/h</div>
+          <div class="activity-time">Hace 2 minutos</div>
+        </div>
+        <span class="badge badge-danger">Crítico</span>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-warning">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Semáforo en rojo</div>
+          <div class="activity-description">Cámara #7 - Intersección Norte</div>
+          <div class="activity-time">Hace 15 minutos</div>
+        </div>
+        <span class="badge badge-warning">Medio</span>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-info">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Predicción ML actualizada</div>
+          <div class="activity-description">Modelo reentrenado - Precisión: 94.2%</div>
+          <div class="activity-time">Hace 2 horas</div>
+        </div>
+        <span class="badge badge-success">Completado</span>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon activity-success">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">Sistema sincronizado</div>
+          <div class="activity-description">Todas las cámaras operativas</div>
+          <div class="activity-time">Hace 3 horas</div>
+        </div>
+        <span class="badge badge-info">Info</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --border-color: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-tertiary: #666666;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
+  --accent-green: #10b981;
+  --accent-yellow: #f59e0b;
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dashboard-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-icon {
+  position: relative;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-blue);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent-red);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.time-selector {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.metric-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.metric-card:hover::before {
+  opacity: 1;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-color);
+}
+
+.metric-primary { --accent-color: var(--accent-cyan); }
+.metric-warning { --accent-color: var(--accent-orange); }
+.metric-danger { --accent-color: var(--accent-red); }
+.metric-success { --accent-color: var(--accent-green); }
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-color);
+  opacity: 0.15;
+  flex-shrink: 0;
+}
+
+.metric-icon svg {
+  color: var(--accent-color);
+  opacity: 1;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.metric-change {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.metric-change.positive {
+  color: var(--accent-green);
+}
+
+.metric-change.negative {
+  color: var(--accent-red);
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.video-panel {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.charts-panel {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.activity-panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px 12px 0 0;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.status-dot.active {
+  background: var(--accent-green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.video-container-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 1.5rem;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+#videoElement, #detectionCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#detectionCanvas {
+  pointer-events: none;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+  z-index: 10;
+}
+
+.overlay-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.video-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.video-placeholder svg {
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.video-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.control-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-control:hover:not(:disabled) {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  transform: translateY(-1px);
+}
+
+.btn-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-control.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+.btn-control.btn-danger:hover:not(:disabled) {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.settings-controls {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.chart-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  flex: 1;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.chart-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.activity-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--accent-blue);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.btn-text:hover {
+  text-decoration: underline;
+}
+
+.activity-feed {
+  padding: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: background 0.2s;
+}
+
+.activity-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+.activity-warning { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+.activity-info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+.activity-success { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.activity-description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+.badge-warning { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+.badge-success { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+.badge-info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+
+@media (max-width: 1200px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .video-panel, .charts-panel, .activity-panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chart.js Configuration
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: { color: '#2a2a2a' },
+      ticks: { color: '#a1a1a1' }
+    },
+    x: {
+      grid: { color: '#2a2a2a' },
+      ticks: { color: '#a1a1a1' }
+    }
+  }
+};
+
+// Infracciones Chart
+const ctx1 = document.getElementById('infraccionesChart').getContext('2d');
+const infraccionesChart = new Chart(ctx1, {
+  type: 'line',
+  data: {
+    labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+    datasets: [
+      {
+        label: 'Velocidad',
+        data: [12, 19, 15, 25, 32, 28, 35, 42, 38, 45, 40, 35],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true
+      },
+      {
+        label: 'Semáforo',
+        data: [8, 12, 10, 15, 18, 16, 20, 25, 22, 28, 24, 20],
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        tension: 0.4,
+        fill: true
+      },
+      {
+        label: 'Carril',
+        data: [5, 8, 6, 10, 12, 10, 14, 18, 15, 20, 17, 14],
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        tension: 0.4,
+        fill: true
+      }
+    ]
+  },
+  options: chartOptions
+});
+
+// Sistema Chart
+const ctx2 = document.getElementById('sistemaChart').getContext('2d');
+const sistemaChart = new Chart(ctx2, {
+  type: 'doughnut',
+  data: {
+    labels: ['Activas', 'Inactivas', 'Mantenimiento'],
+    datasets: [{
+      data: [12, 2, 1],
+      backgroundColor: ['#10b981', '#ef4444', '#f97316'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: '#a1a1a1',
+          padding: 15,
+          font: { size: 12 }
+        }
+      }
+    }
+  }
+});
+
+// Video Detection System
+let videoStream = null;
+let detectionActive = false;
+let detectionInterval = null;
+let fpsCounter = 0;
+let detectionCount = 0;
+let infractionCount = 0;
+
+const videoElement = document.getElementById('videoElement');
+const canvas = document.getElementById('detectionCanvas');
+const ctx = canvas.getContext('2d');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const videoPlaceholder = document.getElementById('videoPlaceholder');
+const videoOverlay = document.getElementById('videoOverlay');
+
+function updateStatus(active) {
+  if (active) {
+    statusDot.classList.add('active');
+    statusText.textContent = 'Detectando';
+    statusText.style.color = '#10b981';
+    videoPlaceholder.style.display = 'none';
+    videoOverlay.style.display = 'block';
+  } else {
+    statusDot.classList.remove('active');
+    statusText.textContent = 'Inactivo';
+    statusText.style.color = '#a1a1a1';
+    videoPlaceholder.style.display = 'flex';
+    videoOverlay.style.display = 'none';
+  }
+}
+
+async function activarWebcam() {
+  try {
+    console.log('[v0] Activando webcam...');
+    
+    // Detener cualquier stream activo
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+    }
+    
+    // Solicitar acceso a la webcam
+    videoStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      } 
+    });
+    
+    videoElement.srcObject = videoStream;
+    
+    // Esperar a que el video esté listo
+    videoElement.onloadedmetadata = () => {
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      iniciarDeteccion();
+    };
+    
+    document.getElementById('btnWebcam').classList.add('active');
+    document.getElementById('btnVideo').classList.remove('active');
+    document.getElementById('btnDetener').disabled = false;
+    
+    console.log('[v0] Webcam activada correctamente');
+    
+  } catch (error) {
+    console.error('[v0] Error al acceder a la webcam:', error);
+    alert('No se pudo acceder a la cámara. Verifica los permisos del navegador.');
+  }
+}
+
+function activarVideoPrueba() {
+  console.log('[v0] Activando video de prueba...');
+  
+  // Detener webcam si está activa
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  
+  // Usar video de YouTube (convertido a formato compatible)
+  // Para pruebas locales, puedes usar un video MP4 local
+  const videoUrl = '/media/videos/prueba_trafico.mp4'; // Ajusta esta ruta
+  
+  videoElement.srcObject = null;
+  videoElement.src = videoUrl;
+  videoElement.loop = true;
+  videoElement.play();
+  
+  videoElement.onloadedmetadata = () => {
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    iniciarDeteccion();
+  };
+  
+  document.getElementById('btnVideo').classList.add('active');
+  document.getElementById('btnWebcam').classList.remove('active');
+  document.getElementById('btnDetener').disabled = false;
+  
+  console.log('[v0] Video de prueba activado');
+}
+
+function iniciarDeteccion() {
+  if (detectionActive) return;
+  
+  detectionActive = true;
+  updateStatus(true);
+  
+  console.log('[v0] Iniciando detección IA...');
+  
+  // Simular detección (en producción, esto se conectaría al backend)
+  detectionInterval = setInterval(() => {
+    if (!videoElement.paused && !videoElement.ended) {
+      // Dibujar frame actual en canvas
+      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+      
+      // Simular detecciones
+      if (Math.random() > 0.7) {
+        simularDeteccion();
+      }
+      
+      // Actualizar FPS
+      fpsCounter++;
+      document.getElementById('fpsCounter').textContent = Math.floor(videoElement.playbackRate * 30);
+      document.getElementById('detectionCounter').textContent = detectionCount;
+      document.getElementById('infractionCounter').textContent = infractionCount;
+    }
+  }, 100);
+}
+
+function simularDeteccion() {
+  detectionCount++;
+  
+  // Dibujar bounding box simulado
+  const x = Math.random() * (canvas.width - 200);
+  const y = Math.random() * (canvas.height - 150);
+  const w = 150 + Math.random() * 100;
+  const h = 100 + Math.random() * 80;
+  
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x, y, w, h);
+  
+  ctx.fillStyle = '#10b981';
+  ctx.font = '14px Arial';
+  ctx.fillText('Vehículo detectado', x, y - 5);
+  
+  // Simular infracción ocasionalmente
+  if (Math.random() > 0.85) {
+    infractionCount++;
+    ctx.strokeStyle = '#ef4444';
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('INFRACCIÓN: Exceso velocidad', x, y - 5);
+    
+    // Agregar a feed de actividad
+    agregarActividad('Exceso de velocidad', 'Webcam Local - 78 km/h');
+  }
+}
+
+function agregarActividad(titulo, descripcion) {
+  const feed = document.getElementById('activityFeed');
+  const item = document.createElement('div');
+  item.className = 'activity-item';
+  item.innerHTML = `
+    <div class="activity-icon activity-danger">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+      </svg>
+    </div>
+    <div class="activity-content">
+      <div class="activity-title">${titulo}</div>
+      <div class="activity-description">${descripcion}</div>
+      <div class="activity-time">Justo ahora</div>
+    </div>
+    <span class="badge badge-danger">Nuevo</span>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  
+  // Limitar a 10 items
+  if (feed.children.length > 10) {
+    feed.removeChild(feed.lastChild);
+  }
+}
+
+function detenerDeteccion() {
+  console.log('[v0] Deteniendo detección...');
+  
+  detectionActive = false;
+  
+  if (detectionInterval) {
+    clearInterval(detectionInterval);
+    detectionInterval = null;
+  }
+  
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+  
+  videoElement.srcObject = null;
+  videoElement.src = '';
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  updateStatus(false);
+  
+  document.getElementById('btnWebcam').classList.remove('active');
+  document.getElementById('btnVideo').classList.remove('active');
+  document.getElementById('btnDetener').disabled = true;
+  
+  // Reset counters
+  fpsCounter = 0;
+  detectionCount = 0;
+  infractionCount = 0;
+  
+  console.log('[v0] Detección detenida');
+}
+
+// Limpiar al salir
+window.addEventListener('beforeunload', () => {
+  if (videoStream) {
+    videoStream.getTracks().forEach(track => track.stop());
+  }
+});
+</script>
 {% endblock %}
