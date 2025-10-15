@@ -14,3 +14,6 @@ torch>=2.0.0
 torchvision>=0.15.0
 ultralytics>=8.0.0
 easyocr>=1.7.0
+
+mysqlclient>=2.2.0
+PyMySQL>=1.1.0

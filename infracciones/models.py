@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 from camaras.models import Camara
 
 class TipoInfraccion(models.Model):
@@ -52,7 +53,7 @@ class Vehiculo(models.Model):
     propietario_telefono = models.CharField(max_length=20, null=True, blank=True)
     propietario_email = models.EmailField(null=True, blank=True)
     reportado_robado = models.BooleanField(default=False)
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_registro = models.DateTimeField(default=timezone.now)
     
     class Meta:
         verbose_name = "Vehículo"
@@ -65,7 +66,6 @@ class Vehiculo(models.Model):
         return self.infracciones.count()
     
     def infracciones_ultimos_30_dias(self):
-        from django.utils import timezone
         from datetime import timedelta
         fecha_limite = timezone.now() - timedelta(days=30)
         return self.infracciones.filter(fecha_hora__gte=fecha_limite).count()
@@ -77,7 +77,7 @@ class Infraccion(models.Model):
     tipo_infraccion = models.ForeignKey(TipoInfraccion, on_delete=models.PROTECT)
     camara = models.ForeignKey(Camara, on_delete=models.SET_NULL, null=True)
     
-    fecha_hora = models.DateTimeField(auto_now_add=True, db_index=True)
+    fecha_hora = models.DateTimeField(default=timezone.now, db_index=True)
     ubicacion = models.CharField(max_length=300)
     latitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitud = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
@@ -174,7 +174,7 @@ class PrediccionAccidente(models.Model):
     latitud = models.DecimalField(max_digits=9, decimal_places=6)
     longitud = models.DecimalField(max_digits=9, decimal_places=6)
     
-    fecha_prediccion = models.DateTimeField(auto_now_add=True)
+    fecha_prediccion = models.DateTimeField(default=timezone.now)
     periodo_prediccion = models.CharField(
         max_length=50,
         choices=[
@@ -205,7 +205,7 @@ class PrediccionAccidente(models.Model):
 class EventoDeteccion(models.Model):
     """Log de eventos de detección en tiempo real"""
     camara = models.ForeignKey(Camara, on_delete=models.CASCADE, related_name='eventos')
-    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
     
     tipo_evento = models.CharField(
         max_length=50,

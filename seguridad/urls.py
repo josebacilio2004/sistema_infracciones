@@ -18,11 +18,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", lambda request: redirect("dashboard_home")),  
     path("admin/", admin.site.urls),
     path("dashboard/", include("dashboard.urls")),
     path("camaras/", include("camaras.urls")),
+    path("infracciones/", include("infracciones.urls")),
+    path("ml-predicciones/", include("ml_predicciones.urls")),
     path("api/", include("api.urls")),
 ]
+    
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
