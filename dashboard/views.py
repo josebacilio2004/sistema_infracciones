@@ -17,8 +17,15 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-from vision_ai.detector_webcam_mejorado import DetectorWebcamMejorado
-
+try:
+    from vision_ai.detector_webcam_mejorado import DetectorWebcamMejorado
+    YOLO_AVAILABLE = True
+except ImportError as e:
+    print(f"YOLO not available: {e}")
+    YOLO_AVAILABLE = False
+    # Define una clase dummy o maneja el caso
+    DetectorWebcamMejorado = None
+    
 detector_global = None
 detector_lock = threading.Lock()
 camara_actual = None

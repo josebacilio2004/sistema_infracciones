@@ -16,6 +16,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Si usas modelos preentrenados, configura el cache
+os.environ['YOLO_CACHE_DIR'] = os.path.join(os.path.dirname(__file__), '.yolo_cache')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
