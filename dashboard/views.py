@@ -23,6 +23,8 @@ detector_global = None
 detector_lock = threading.Lock()
 camara_actual = None
 
+USE_LOCAL_VIDEO = os.getenv("USE_LOCAL_VIDEO", "False") == "True"
+
 def inicializar_detector(fuente_video=0):
     """Inicializa el detector optimizado"""
     global detector_global, camara_actual
