@@ -1,8 +1,7 @@
-setuptools==68.2.2
-wheel==0.41.3
 Django==4.2.7
 gunicorn==21.2.0
 whitenoise==6.6.0
 opencv-python-headless==4.8.1.78
 ultralytics==8.0.186
-numpy==2.0.1
+pillow==10.0.1
+numpy==1.24.3
