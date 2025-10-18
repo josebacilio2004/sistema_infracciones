@@ -62,5 +62,6 @@ jobs:
         with:
           app-name: 'sistemainfracc-f6f3dygzckfscjfu'
           slot-name: 'Production'
-          resource-group: 'sistemainfracc_group'  # ⬅️ AGREGA ESTA LÍNEA (CRÍTICO)
+          resource-group: 'prueba_azure'
           package: '.'
+
