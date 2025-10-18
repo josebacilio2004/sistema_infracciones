@@ -22,7 +22,7 @@ CARPETA_EVIDENCIAS = 'evidencias'
 if not os.path.exists(CARPETA_EVIDENCIAS):
     os.makedirs(CARPETA_EVIDENCIAS)
 
-# --- FUNCIONES AUXILIARESa ---
+# --- FUNCIONES AUXILIARES ---
 
 def detectar_exceso_velocidad(video_path):
     cap = cv2.VideoCapture(video_path)
