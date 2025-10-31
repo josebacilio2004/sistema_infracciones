@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Sistema de Infracciones IA{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --border-color: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
+  --accent-green: #10b981;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.login-logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 2rem;
+  color: white;
+  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.2);
+}
+
+.login-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.login-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 1rem;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--accent-red);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--accent-red);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.info-message {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--accent-blue);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--accent-blue);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.remember-forgot label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.remember-forgot a {
+  color: var(--accent-blue);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.remember-forgot a:hover {
+  color: var(--accent-cyan);
+}
+
+.login-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.features-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.feature-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.feature-text {
+  color: var(--text-secondary);
+}
+</style>
+
+<div class="login-container">
+  <div class="login-header">
+    <div class="login-logo">🚗</div>
+    <h1 class="login-title">INFRACCIONES IA</h1>
+    <p class="login-subtitle">Sistema de Detección Inteligente</p>
+  </div>
+
+  <div class="login-card">
+    {% if form.non_field_errors %}
+    <div class="error-message">
+      {% for error in form.non_field_errors %}
+        {{ error }}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="info-message">
+      ℹ️ Ingresa con tu usuario administrador para acceder al panel de control
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_username" class="form-label">Usuario</label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          class="form-control"
+          placeholder="Tu usuario"
+          autofocus
+          required
+        >
+        {% if form.username.errors %}
+        <small style="color: var(--accent-red);">{{ form.username.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password" class="form-label">Contraseña</label>
+        <input
+          type="password"
+          name="password"
+          id="id_password"
+          class="form-control"
+          placeholder="Tu contraseña"
+          required
+        >
+        {% if form.password.errors %}
+        <small style="color: var(--accent-red);">{{ form.password.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <div class="remember-forgot">
+        <label>
+          <input type="checkbox" name="remember">
+          Recuérdame
+        </label>
+        <a href="#" onclick="alert('Contacta al administrador del sistema para recuperar tu contraseña')">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="submit-btn">Iniciar Sesión</button>
+    </form>
+
+    <div class="login-footer">
+      <strong>Sistema de Infracciones con IA</strong>
+      <p style="margin: 0.5rem 0 0 0;">v1.0 - Tesis de Investigación 2025</p>
+    </div>
+
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-icon">✓</div>
+        <div class="feature-text">Visión Artificial</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">✓</div>
+        <div class="feature-text">Machine Learning</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">✓</div>
+        <div class="feature-text">IoT Integrado</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">✓</div>
+        <div class="feature-text">Monitoreo Real-time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

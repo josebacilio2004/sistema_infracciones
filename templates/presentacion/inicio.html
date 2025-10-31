@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+
+{% block title %}Presentación - Sistema de Infracciones IA{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --border-color: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-tertiary: #666666;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
+  --accent-green: #10b981;
+  --accent-purple: #a855f7;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-blue);
+  background: var(--bg-tertiary);
+}
+
+/* Hero Section */
+.hero {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  top: -300px;
+  right: -300px;
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  bottom: -300px;
+  left: -300px;
+  pointer-events: none;
+}
+
+.hero-content {
+  max-width: 1200px;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 50%, var(--accent-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  opacity: 0.9;
+}
+
+/* Features Section */
+.features {
+  padding: 5rem 3rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-header h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-header p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-color);
+}
+
+.feature-card.card-blue { --accent-color: var(--accent-blue); }
+.feature-card.card-cyan { --accent-color: var(--accent-cyan); }
+.feature-card.card-green { --accent-color: var(--accent-green); }
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: var(--accent-color);
+  opacity: 0.15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.feature-icon.blue { --accent-color: var(--accent-blue); color: var(--accent-blue); }
+.feature-icon.cyan { --accent-color: var(--accent-cyan); color: var(--accent-cyan); }
+.feature-icon.green { --accent-color: var(--accent-green); color: var(--accent-green); }
+
+.feature-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.feature-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Technology Stack */
+.tech-stack {
+  padding: 5rem 3rem;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tech-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.tech-item:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-blue);
+}
+
+.tech-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.tech-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.tech-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 5rem 3rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.cta-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Footer */
+.footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .navbar {
+    padding: 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+}
+</style>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <div class="navbar-logo-icon">🚗</div>
+    INFRACCIONES IA
+  </div>
+  <div class="navbar-actions">
+    <a href="{% url 'login' %}" class="btn-secondary">Iniciar Sesión</a>
+    <a href="{% url 'admin:index' %}" class="btn-primary">Panel Admin</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1>Sistema Inteligente de Detección de Infracciones</h1>
+      <p>Integración de IoT, Visión Artificial y Machine Learning para monitoreo en tiempo real de infracciones de tránsito. Sistema académico desarrollado para investigación científica.</p>
+      <div class="hero-buttons">
+        <a href="{% url 'login' %}" class="btn-primary">Acceder al Dashboard</a>
+        <a href="#features" class="btn-secondary">Conocer más</a>
+      </div>
+    </div>
+    <div class="hero-illustration">🔍</div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="section-header">
+    <h2>Características Principales</h2>
+    <p>Solución completa de las 4 dimensiones: Software, IoT, Visión Artificial y Machine Learning</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card card-blue">
+      <div class="feature-icon blue">📹</div>
+      <div class="feature-title">Visión Artificial</div>
+      <div class="feature-description">YOLOv8n optimizado para detección en tiempo real. Identificación de placas peruanas (formato A1B-234) con OCR. Precisión: 94.2%</div>
+    </div>
+
+    <div class="feature-card card-cyan">
+      <div class="feature-icon cyan">🧠</div>
+      <div class="feature-title">Machine Learning</div>
+      <div class="feature-description">Modelo Random Forest para predicción de riesgo. Análisis de patrones de infracciones. Reentrenamiento automático.</div>
+    </div>
+
+    <div class="feature-card card-green">
+      <div class="feature-icon green">🌐</div>
+      <div class="feature-title">IoT Integrado</div>
+      <div class="feature-description">Soporte para cámaras IP, webcam local, IriunWebcam y videos. Monitoreo múltiple simultaneo. Sincronización en tiempo real.</div>
+    </div>
+
+    <div class="feature-card card-blue">
+      <div class="feature-icon blue">⚡</div>
+      <div class="feature-title">Detección de Infracciones</div>
+      <div class="feature-description">Luz roja: Detección de semáforos en rojo. Exceso de velocidad: Cálculo automático. Invasión de carril: Análisis de trayectoria.</div>
+    </div>
+
+    <div class="feature-card card-cyan">
+      <div class="feature-icon cyan">📊</div>
+      <div class="feature-title">Dashboard Avanzado</div>
+      <div class="feature-description">Monitoreo en tiempo real. Gráficos interactivos. Estadísticas por hora. Feed de actividad. Almacenamiento en MySQL.</div>
+    </div>
+
+    <div class="feature-card card-green">
+      <div class="feature-icon green">🔐</div>
+      <div class="feature-title">Admin Seguro</div>
+      <div class="feature-description">Panel Jazzmin personalizado. Control de usuarios. Historial de infracciones. Generación de reportes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Technology Stack -->
+<section class="tech-stack">
+  <div class="section-header">
+    <h2>Stack Tecnológico</h2>
+    <p>Herramientas profesionales para investigación científica</p>
+  </div>
+
+  <div class="tech-grid">
+    <div class="tech-item">
+      <div class="tech-icon">🐍</div>
+      <div class="tech-name">Django 5.2</div>
+      <div class="tech-description">Framework web robusto para backend</div>
+    </div>
+
+    <div class="tech-item">
+      <div class="tech-icon">🤖</div>
+      <div class="tech-name">YOLOv8n</div>
+      <div class="tech-description">Detección de objetos optimizada</div>
+    </div>
+
+    <div class="tech-item">
+      <div class="tech-icon">📊</div>
+      <div class="tech-name">MySQL</div>
+      <div class="tech-description">Base de datos relacional</div>
+    </div>
+
+    <div class="tech-item">
+      <div class="tech-icon">📈</div>
+      <div class="tech-name">Scikit-learn</div>
+      <div class="tech-description">Machine Learning avanzado</div>
+    </div>
+
+    <div class="tech-item">
+      <div class="tech-icon">🎥</div>
+      <div class="tech-name">OpenCV</div>
+      <div class="tech-description">Procesamiento de video</div>
+    </div>
+
+    <div class="tech-item">
+      <div class="tech-icon">📝</div>
+      <div class="tech-name">EasyOCR</div>
+      <div class="tech-description">Reconocimiento de placas</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="cta-content">
+    <h2>Comienza a Monitorear</h2>
+    <p>Accede al dashboard para comenzar a detectar infracciones en tiempo real con inteligencia artificial.</p>
+    <a href="{% url 'login' %}" class="btn-primary">Iniciar Sesión Ahora</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p><strong>Sistema de Infracciones con IA</strong> © 2025 - Tesis de Investigación</p>
+  <p style="font-size: 0.85rem; margin-top: 0.5rem;">Integración de IoT, Visión Artificial, Machine Learning e Software</p>
+</footer>
+
+{% endblock %}

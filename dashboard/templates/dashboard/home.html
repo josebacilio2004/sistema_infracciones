@@ -1,0 +1,1237 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Detección de Infracciones{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Mostrar canvas cuando se usa RTSP */
+  .rtsp-active #canvasOutput {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+  }
+
+  .rtsp-active #videoFeed {
+    display: none;
+  }
+
+  /* Estado de la cámara */
+  .camera-status {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    z-index: 10;
+  }
+
+  :root {
+    --primary: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --dark: #1f2937;
+    --light: #f3f4f6;
+    --border: #e5e7eb;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--light);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .dashboard-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .dashboard-header p {
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--primary);
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-card.success {
+    border-left-color: var(--success);
+  }
+
+  .stat-card.warning {
+    border-left-color: var(--warning);
+  }
+
+  .stat-card.danger {
+    border-left-color: var(--danger);
+  }
+
+  .stat-card h3 {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .stat-card .value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Main Grid Layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+  }
+
+  .card-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 600px;
+  }
+
+  /* Video Container - Fixed Aspect Ratio */
+  .video-container {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16/9;
+    margin-bottom: 1rem;
+  }
+
+  #videoFeed {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .video-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Controls */
+  .controls-section {
+    margin-bottom: 1rem;
+  }
+
+  .camera-selector {
+    margin-bottom: 1rem;
+  }
+
+  .camera-selector label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-size: 0.9rem;
+  }
+
+  .camera-selector select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: white;
+    cursor: pointer;
+  }
+
+  .camera-selector select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+  }
+
+  .btn-info {
+    background: #0ea5e9;
+    color: white;
+  }
+
+  .btn-info:hover:not(:disabled) {
+    background: #0284c7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Animación para fadeIn */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Detection Stats */
+  .detection-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  .detection-stat {
+    text-align: center;
+  }
+
+  .detection-stat .label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .detection-stat .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* Vehicle Info Card */
+  .vehicle-info-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .vehicle-placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .vehicle-info-card {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  .vehicle-info-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary);
+  }
+
+  .vehicle-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .vehicle-info-row label {
+    font-weight: 600;
+    color: #6b7280;
+  }
+
+  .vehicle-info-row span {
+    color: #111827;
+  }
+
+  /* Charts Section - Fixed Height */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .chart-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+
+  .chart-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+  }
+
+  /* Fixed chart container height to prevent infinite scroll */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin: 0;
+  }
+
+  /* Activity Feed - Fixed Height */
+  .activity-feed {
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    font-size: 0.85rem;
+  }
+
+  .activity-item:hover {
+    background: #f9fafb;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .activity-type {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .activity-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+  }
+
+  .activity-details {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.5rem;
+  }
+
+  .badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  .alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    border-left: 4px solid;
+  }
+
+  .alert-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left-color: var(--primary);
+  }
+
+  /* Scrollbar styling */
+  .activity-feed::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .activity-feed::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+  }
+
+  .activity-feed::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+
+  .activity-feed::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Estado de conexión RTSP */
+  .rtsp-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    z-index: 10;
+  }
+
+  .rtsp-status.connected {
+    background: rgba(16, 185, 129, 0.8);
+  }
+
+  .rtsp-status.disconnected {
+    background: rgba(239, 68, 68, 0.8);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>🚦 Sistema de Detección de Infracciones de Tránsito</h1>
+    <p>Integración IoT + Visión Artificial + Machine Learning | Proyecto de Tesis</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Cámaras Activas</h3>
+      <div class="value">{{ total_camaras }}</div>
+    </div>
+    <div class="stat-card success">
+      <h3>Infracciones Hoy</h3>
+      <div class="value" id="infraccionesHoy">{{ infracciones_hoy }}</div>
+    </div>
+    <div class="stat-card warning">
+      <h3>Alertas Activas</h3>
+      <div class="value" id="alertasActivas">{{ alertas_activas }}</div>
+    </div>
+    <div class="stat-card danger">
+      <h3>Vehículos Detectados</h3>
+      <div class="value" id="vehiculosDetectados">0</div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-grid">
+    <!-- Video Detection Panel -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🎥 Detección en Tiempo Real</h2>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <strong>🇵🇪 Formato Peruano:</strong> A1B-234 | <strong>Infracciones:</strong> Velocidad | Luz Roja | Carril
+        </div>
+
+        <div class="controls-section">
+          <div class="camera-selector">
+            <label for="cameraSelect">Seleccionar Cámara:</label>
+            <select id="cameraSelect">
+              <option value="local_0">Cámara Local 0 (PC)</option>
+              <option value="local_1">Cámara Local 1</option>
+              <option value="ezviz_rtsp">🎥 Cámara EZVIZ H6c Pro (Exterior)</option>
+              <option value="http://192.168.1.100:8080/video">📱 iriunWebcam (WiFi)</option>
+            </select>
+          </div>
+
+          <div class="btn-group">
+            <button id="startBtn" class="btn btn-primary">▶ Iniciar Detección</button>
+            <button id="stopBtn" class="btn btn-danger" disabled>⏹ Detener</button>
+            <button id="testCameraBtn" class="btn btn-info" onclick="probarCamaraRTSP()">🔧 Probar Cámara RTSP</button>
+          </div>
+        </div>
+
+        <div class="video-container">
+          <video id="videoFeed" autoplay playsinline></video>
+          <canvas id="canvasOutput" style="display: none;"></canvas>
+          <div class="video-overlay">
+            <span class="status-dot"></span>
+            <span id="statusText">Inactivo</span>
+          </div>
+          <div id="rtspStatus" class="rtsp-status disconnected" style="display: none;">
+            📡 RTSP: Desconectado
+          </div>
+        </div>
+
+        <div class="detection-stats">
+          <div class="detection-stat">
+            <div class="label">Vehículos</div>
+            <div class="value" id="vehiculosCount">0</div>
+          </div>
+          <div class="detection-stat">
+            <div class="label">Placas</div>
+            <div class="value" id="placasCount">0</div>
+          </div>
+          <div class="detection-stat">
+            <div class="label">FPS</div>
+            <div class="value" id="fpsCount">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Info Panel -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🚗 Información del Vehículo</h2>
+      </div>
+      <div class="card-body vehicle-info-section">
+        <div id="vehicleInfoContainer" class="vehicle-placeholder">
+          <p>Detecta una placa para ver la información</p>
+        </div>
+
+        <div id="vehicleInfo" style="display: none;">
+          <div class="vehicle-info-card">
+            <h3 id="vehiclePlate">-</h3>
+            <div class="vehicle-info-row">
+              <div>
+                <label>Marca:</label>
+                <span id="vehicleBrand">-</span>
+              </div>
+              <div>
+                <label>Modelo:</label>
+                <span id="vehicleModel">-</span>
+              </div>
+            </div>
+            <div class="vehicle-info-row">
+              <div>
+                <label>Color:</label>
+                <span id="vehicleColor">-</span>
+              </div>
+              <div>
+                <label>Año:</label>
+                <span id="vehicleYear">-</span>
+              </div>
+            </div>
+            <div class="vehicle-info-row">
+              <div>
+                <label>Propietario:</label>
+                <span id="vehicleOwner">-</span>
+              </div>
+              <div>
+                <label>Documento:</label>
+                <span id="vehicleDocument">-</span>
+              </div>
+            </div>
+            <div class="vehicle-info-row">
+              <div>
+                <label>Estado:</label>
+                <span id="vehicleStatus">-</span>
+              </div>
+              <div>
+                <label>Infracciones:</label>
+                <span id="vehicleInfractions">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>📈 Infracciones por Hora (Últimas 24h)</h3>
+      <div class="chart-container">
+        <canvas id="chartInfracciones"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>📊 Actividad Reciente</h3>
+      <div class="activity-feed" id="activityFeed">
+        {% for infraccion in ultimas_infracciones %}
+        <div class="activity-item">
+          <div class="activity-header">
+            <span class="activity-type">{{ infraccion.tipo_infraccion.nombre }}</span>
+            <span class="activity-time">{{ infraccion.fecha_hora|date:"H:i" }}</span>
+          </div>
+          <div class="activity-details">
+            <strong>Placa:</strong> {{ infraccion.vehiculo.placa }}
+            {% if infraccion.velocidad_detectada %}
+            | <strong>Velocidad:</strong> {{ infraccion.velocidad_detectada }} km/h
+            {% endif %}
+          </div>
+          <span class="badge badge-danger">{{ infraccion.estado }}</span>
+        </div>
+        {% empty %}
+        <div class="activity-item">
+          <p style="color: #9ca3af;">No hay infracciones registradas aún.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+  let videoStream = null;
+  let detectionInterval = null;
+  let isDetecting = false;
+  let currentCameraId = 'local_0';
+  let lastDetectedPlate = null;
+  let chartInstance = null;
+  let frameCount = 0;
+  let lastFrameTime = 0;
+  let fps = 0;
+
+  const videoElement = document.getElementById('videoFeed');
+  const canvasElement = document.getElementById('canvasOutput');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const statusText = document.getElementById('statusText');
+  const cameraSelect = document.getElementById('cameraSelect');
+  const rtspStatus = document.getElementById('rtspStatus');
+
+  function initializeChart() {
+    const ctx = document.getElementById('chartInfracciones');
+    if (!ctx) return;
+
+    const infraccionesPorHora = JSON.parse('{{ infracciones_por_hora|escapejs|safe }}');
+
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: infraccionesPorHora.map(item => item.hora),
+        datasets: [{
+          label: 'Infracciones',
+          data: infraccionesPorHora.map(item => item.count),
+          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          borderColor: 'rgba(37, 99, 235, 1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top' }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initializeChart);
+
+  cameraSelect.addEventListener('change', (e) => {
+    if (isDetecting) {
+      alert('Detén la detección antes de cambiar cámara');
+      e.target.value = currentCameraId;
+      return;
+    }
+    currentCameraId = e.target.value;
+    console.log('[v0] Cámara seleccionada:', currentCameraId);
+
+    // Actualizar estado RTSP
+    if (currentCameraId === 'ezviz_rtsp') {
+      rtspStatus.style.display = 'block';
+      rtspStatus.className = 'rtsp-status disconnected';
+      rtspStatus.innerHTML = '📡 RTSP: Desconectado';
+    } else {
+      rtspStatus.style.display = 'none';
+    }
+  });
+
+  // Función para probar cámara RTSP
+  async function probarCamaraRTSP() {
+    try {
+      const testBtn = document.getElementById('testCameraBtn');
+      const originalText = testBtn.innerHTML;
+      testBtn.innerHTML = '🔧 Probando...';
+      testBtn.disabled = true;
+
+      console.log('🔧 Probando conexión con cámara RTSP...');
+
+      const response = await fetch('/dashboard/probar-camara-rtsp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({})
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        alert(`✅ Cámara RTSP funcionando correctamente\n📏 Resolución: ${data.resolucion}`);
+        console.log('✅ Cámara RTSP probada exitosamente:', data);
+
+        // Actualizar estado visual
+        rtspStatus.className = 'rtsp-status connected';
+        rtspStatus.innerHTML = '📡 RTSP: Conectado';
+      } else {
+        alert('❌ Error: ' + data.message);
+        console.error('❌ Error probando cámara RTSP:', data.message);
+
+        // Actualizar estado visual
+        rtspStatus.className = 'rtsp-status disconnected';
+        rtspStatus.innerHTML = '📡 RTSP: Error';
+      }
+    } catch (error) {
+      console.error('❌ Error probando cámara RTSP:', error);
+      alert('❌ Error de conexión: ' + error.message);
+
+      // Actualizar estado visual
+      rtspStatus.className = 'rtsp-status disconnected';
+      rtspStatus.innerHTML = '📡 RTSP: Error de conexión';
+    } finally {
+      const testBtn = document.getElementById('testCameraBtn');
+      testBtn.innerHTML = '🔧 Probar Cámara RTSP';
+      testBtn.disabled = false;
+    }
+  }
+
+  // Función auxiliar para obtener CSRF token
+  function getCSRFToken() {
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    return cookieValue || document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+  }
+
+  startBtn.addEventListener('click', async () => {
+    try {
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      statusText.textContent = 'Iniciando cámara...';
+
+      console.log('🎥 Solicitando acceso a la cámara...');
+
+      // Verificar si es cámara RTSP
+      if (currentCameraId === 'ezviz_rtsp') {
+        console.log('📡 Usando cámara RTSP EZVIZ');
+        statusText.textContent = 'Conectando a cámara RTSP...';
+        isDetecting = true;
+
+        // Configurar el contenedor para RTSP
+        document.querySelector('.video-container').classList.add('rtsp-active');
+        canvasElement.style.display = 'block';
+        canvasElement.width = 1280; // Tamaño esperado
+        canvasElement.height = 720;
+
+        // Mostrar estado RTSP
+        rtspStatus.style.display = 'block';
+        rtspStatus.className = 'rtsp-status disconnected';
+        rtspStatus.innerHTML = '📡 RTSP: Conectando...';
+
+        // Iniciar detección inmediatamente para RTSP
+        detectionInterval = setInterval(processFrame, 500); // Más lento para RTSP
+        setInterval(updateStats, 5000);
+        statusText.textContent = 'Conectado a EZVIZ - Detectando...';
+
+        // Actualizar estado RTSP
+        rtspStatus.className = 'rtsp-status connected';
+        rtspStatus.innerHTML = '📡 RTSP: Conectado';
+
+        console.log('🎯 Detección RTSP iniciada');
+        return;
+      }
+
+      // Para cámaras locales
+      const constraints = {
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'environment'
+        }
+      };
+
+      videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('✅ Cámara local accedida correctamente');
+
+      videoElement.srcObject = videoStream;
+
+      videoElement.onloadedmetadata = () => {
+        console.log('📏 Dimensiones del video:', videoElement.videoWidth, 'x', videoElement.videoHeight);
+        videoElement.play().then(() => {
+          console.log('▶️ Video reproduciéndose');
+          statusText.textContent = 'Detectando...';
+          isDetecting = true;
+
+          detectionInterval = setInterval(processFrame, 200);
+          setInterval(updateStats, 5000);
+
+          console.log('🎯 Detección iniciada');
+        }).catch(e => {
+          console.error('❌ Error reproduciendo video:', e);
+          statusText.textContent = 'Error';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+        });
+      };
+
+    } catch (error) {
+      console.error('❌ Error al acceder a la cámara:', error);
+
+      if (currentCameraId === 'ezviz_rtsp') {
+        alert('Error conectando a cámara RTSP: ' + error.message);
+        rtspStatus.className = 'rtsp-status disconnected';
+        rtspStatus.innerHTML = '📡 RTSP: Error de conexión';
+      } else {
+        alert('Error al acceder a la cámara local: ' + error.message);
+      }
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      statusText.textContent = 'Error';
+    }
+  });
+
+  stopBtn.addEventListener('click', stopDetection);
+
+  function stopDetection() {
+    if (detectionInterval) clearInterval(detectionInterval);
+
+    // Solo detener stream local, no afecta RTSP
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+      videoStream = null;
+    }
+
+    videoElement.srcObject = null;
+    videoElement.src = ''; // Limpiar fuente
+    isDetecting = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    // Limpiar canvas
+    const ctx = canvasElement.getContext('2d');
+    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    // Remover clase RTSP
+    document.querySelector('.video-container').classList.remove('rtsp-active');
+    canvasElement.style.display = 'none';
+
+    if (currentCameraId === 'ezviz_rtsp') {
+      statusText.textContent = 'RTSP Desconectado';
+      rtspStatus.className = 'rtsp-status disconnected';
+      rtspStatus.innerHTML = '📡 RTSP: Desconectado';
+    } else {
+      statusText.textContent = 'Detenido';
+      rtspStatus.style.display = 'none';
+    }
+  }
+
+  async function processFrame() {
+    if (!isDetecting) {
+      console.log('⏭️  Saltando frame - detección detenida');
+      return;
+    }
+
+    try {
+      console.log('🔄 Procesando frame...');
+
+      let frameData = '';
+
+      if (currentCameraId === 'ezviz_rtsp') {
+        // Para RTSP, enviar un marcador específico
+        frameData = 'RTSP_CAMERA_EZVIZ'; // Marcador claro
+      } else {
+        // Para cámaras locales, capturar del video
+        if (!videoElement.videoWidth || videoElement.videoWidth === 0) {
+          console.log('⏭️  Saltando frame - video no listo');
+          return;
+        }
+
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+
+        const ctx = canvasElement.getContext('2d');
+        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+        frameData = canvasElement.toDataURL('image/jpeg', 0.8);
+
+        if (!frameData || frameData.length < 100) {
+          console.warn('⚠️  Frame data vacío o muy pequeño:', frameData?.length);
+          return;
+        }
+      }
+
+      console.log(`📸 Frame preparado para: ${currentCameraId}`);
+
+      const csrfToken = getCSRFToken();
+
+      frameCount++;
+
+      // Calcular FPS
+      const now = performance.now();
+      if (lastFrameTime > 0) {
+        fps = Math.round(1000 / (now - lastFrameTime));
+      }
+      lastFrameTime = now;
+
+      document.getElementById('fpsCount').textContent = fps;
+
+      // Enviar con información de la cámara seleccionada
+      const payload = {
+        frame: frameData,
+        camera_id: currentCameraId
+      };
+
+      const response = await fetch('/dashboard/api/procesar-frame/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error HTTP:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Respuesta del servidor:', data);
+
+      if (data.status === 'success') {
+        // ✅ CRÍTICO: MOSTRAR EL FRAME PROCESADO EN LA INTERFAZ
+        if (data.frame && data.frame.startsWith('data:image')) {
+          console.log('🖼️ Mostrando frame procesado en la interfaz');
+
+          // Crear una imagen temporal
+          const img = new Image();
+          img.onload = function () {
+            // Limpiar el canvas y dibujar la imagen procesada
+            const ctx = canvasElement.getContext('2d');
+            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            ctx.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
+
+            // Para RTSP, también mostrar en el elemento video (convertir canvas a video)
+            if (currentCameraId === 'ezviz_rtsp') {
+              // Convertir canvas a data URL y asignar al video
+              const processedFrame = canvasElement.toDataURL('image/jpeg', 0.8);
+              videoElement.src = processedFrame;
+            }
+          };
+          img.src = data.frame;
+        } else {
+          console.log('⚠️ No se recibió frame procesado del servidor');
+        }
+
+        // Actualizar contadores
+        if (data.detecciones) {
+          document.getElementById('vehiculosCount').textContent = data.detecciones.vehiculos || 0;
+          document.getElementById('placasCount').textContent = data.detecciones.placas_detectadas?.length || 0;
+        }
+
+        // Procesar placas detectadas - CON FILTRO MEJORADO
+        if (data.placas && data.placas.length > 0) {
+          const placasValidas = data.placas.filter(placa => {
+            // Filtrar placas que parecen texto aleatorio o muy largas
+            return placa &&
+              placa.length >= 4 &&
+              placa.length <= 10 &&
+              !placa.includes('--') &&
+              !placa.includes('EEE') &&
+              !placa.includes('CO-TIAGE') && // Filtrar texto específico erróneo
+              !placa.includes('SEREDENTE'); // Filtrar texto específico erróneo
+          });
+
+          if (placasValidas.length > 0) {
+            const primeraPlaca = placasValidas[0];
+            if (primeraPlaca !== lastDetectedPlate) {
+              lastDetectedPlate = primeraPlaca;
+              console.log('🚗 Nueva placa detectada (FILTRADA):', primeraPlaca);
+              await fetchVehicleInfoFromSUNARP(primeraPlaca);
+            }
+          } else {
+            console.log('🔍 Placas detectadas pero filtradas como inválidas:', data.placas);
+          }
+        }
+
+        // Mostrar datos SUNARP
+        if (data.datos_sunarp && data.datos_sunarp.status === 'success') {
+          console.log('📋 Datos SUNARP recibidos:', data.datos_sunarp);
+          displayVehicleInfo(data.datos_sunarp.vehiculo);
+        }
+      } else if (data.status === 'error') {
+        console.error('❌ Error en respuesta:', data.error);
+      }
+    } catch (error) {
+      console.error('❌ Error procesando frame:', error);
+
+      // Actualizar estado RTSP en caso de error
+      if (currentCameraId === 'ezviz_rtsp') {
+        rtspStatus.className = 'rtsp-status disconnected';
+        rtspStatus.innerHTML = '📡 RTSP: Error de conexión';
+      }
+    }
+  }
+
+  async function fetchVehicleInfoFromSUNARP(placa) {
+    try {
+      console.log('[v0] Consultando SUNARP para placa:', placa);
+
+      const response = await fetch('/dashboard/api/consultar-sunarp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ placa: placa })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success' && data.vehiculo) {
+        console.log('[v0] Datos SUNARP obtenidos:', data.vehiculo);
+        displayVehicleInfo(data.vehiculo);
+      } else {
+        console.warn('[v0] No se encontraron datos para placa:', placa);
+      }
+    } catch (error) {
+      console.error('[v0] Error consultando SUNARP:', error);
+    }
+  }
+
+  function displayVehicleInfo(vehiculo) {
+    console.log('📊 Mostrando información del vehículo:', vehiculo);
+
+    // Actualizar todos los campos
+    document.getElementById('vehiclePlate').textContent = vehiculo.placa || '-';
+    document.getElementById('vehicleBrand').textContent = vehiculo.marca || 'No disponible';
+    document.getElementById('vehicleModel').textContent = vehiculo.modelo || 'No disponible';
+    document.getElementById('vehicleColor').textContent = vehiculo.color || 'No disponible';
+    document.getElementById('vehicleYear').textContent = vehiculo.anio || 'No disponible';
+    document.getElementById('vehicleOwner').textContent = vehiculo.propietario_nombre || 'No disponible';
+    document.getElementById('vehicleDocument').textContent = vehiculo.propietario_documento || 'No disponible';
+    document.getElementById('vehicleStatus').textContent = vehiculo.estado || 'ACTIVO';
+    document.getElementById('vehicleInfractions').textContent = vehiculo.total_infracciones || 0;
+
+    // Mostrar la sección de información
+    document.getElementById('vehicleInfoContainer').style.display = 'none';
+    document.getElementById('vehicleInfo').style.display = 'block';
+  }
+
+  async function updateStats() {
+    try {
+      const response = await fetch('/dashboard/api/estadisticas-tiempo-real/');
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const stats = await response.json();
+
+      document.getElementById('infraccionesHoy').textContent = stats.infracciones_hoy || 0;
+      document.getElementById('alertasActivas').textContent = stats.alertas_activas || 0;
+      document.getElementById('vehiculosDetectados').textContent = stats.vehiculos_detectados || 0;
+    } catch (error) {
+      console.error('❌ Error actualizando estadísticas:', error);
+    }
+  }
+
+  window.addEventListener('beforeunload', stopDetection);
+
+  console.log('[v0] Dashboard inicializado correctamente');
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+placa,total_infracciones,infracciones_graves,infracciones_leves,velocidad_promedio,tasa_infracciones_mes,hora_promedio,es_reincidente
+ABC-123,3,0,3,50.0,3.214285714285714,21.0,0
+XYZ-789,2,1,1,50.0,7.5,21.0,0
+DEF-456,8,3,5,73.0,9.6,21.0,1
+GHI-321,6,2,4,90.0,8.571428571428571,21.0,1
+JKL-654,1,0,1,50.0,30.0,21.0,0

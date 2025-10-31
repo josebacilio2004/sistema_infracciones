@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar Cámara - Infracciones Rápidas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card card-custom border-danger">
+      <div class="card-header bg-danger text-white">Eliminar Cámara</div>
+      <div class="card-body text-center">
+        <p>¿Estás seguro de que deseas eliminar la cámara en <strong>{{ camara.ubicacion }}</strong>?</p>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+          <a href="{% url 'camaras_lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
